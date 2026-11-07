@@ -21,7 +21,7 @@ from typing import Any
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
-from astrbot.api.star import Context, Star, StarTools
+from astrbot.api.star import Context, Star, StarTools, register
 
 from . import qq_hook
 
@@ -59,6 +59,13 @@ def _short_time(value: Any) -> str:
     return text[:16]
 
 
+@register(
+    "astrbot_plugin_qq_joinmanager",
+    "xiaowan138",
+    "基于 QQ 官方机器人 API 的入群申请自动审核插件",
+    "1.0.0",
+    "https://github.com/xiaowan138/astrbot_plugin_qq_joinmanager",
+)
 class QQJoinManager(Star):
     """QQ 官机入群请求管理器。"""
 

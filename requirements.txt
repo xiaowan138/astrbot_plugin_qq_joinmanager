@@ -1,0 +1,2 @@
+# 本插件不依赖额外的第三方库。
+# QQ 官方接口使用的 qq-botpy 由 AstrBot 的 qq_official 适配器提供。
