@@ -1,0 +1,9 @@
+name: astrbot_plugin_qq_joinmanager
+display_name: QQ官机入群管理器
+desc: 基于 QQ 官方机器人 API 的入群申请自动审核，支持关键词通过/拒绝、欢迎语、退群提示、审核通知和入群统计
+short_desc: QQ 官方机器人的入群申请管理器
+version: v1.0.0
+astrbot_version: ">=4.12.0"
+support_platforms:
+  - qq_official
+author: dsh

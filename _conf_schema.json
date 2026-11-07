@@ -1,0 +1,320 @@
+{
+  "delay": {
+    "description": "发送间隔",
+    "type": "float",
+    "hint": "发送多条通知时的间隔，单位秒。",
+    "default": 0.5
+  },
+  "control": {
+    "description": "分群控制",
+    "type": "object",
+    "hint": "决定插件在哪些群生效，列表可填 group_openid 或群名称（群名称需要机器人有群信息接口权限）。",
+    "items": {
+      "block_method": {
+        "description": "阻止模式",
+        "type": "string",
+        "hint": "blacklist 表示列表中的群不生效；whitelist 表示只有列表中的群生效。",
+        "options": ["blacklist", "whitelist"],
+        "default": "blacklist"
+      },
+      "control_list": {
+        "description": "群列表",
+        "type": "list",
+        "hint": "填 group_openid 或群名称。QQ 官方接口不提供群号，openid 可通过 /入群审核 我是谁 或 /入群统计 查看。",
+        "default": []
+      }
+    }
+  },
+  "reject_blacklist": {
+    "description": "拒绝时加入群黑名单",
+    "type": "bool",
+    "hint": "开启后，自动拒绝和人工拒绝会同时把申请人加入群黑名单。",
+    "default": false
+  },
+  "accept_rules": {
+    "description": "同意关键词规则",
+    "type": "template_list",
+    "hint": "按群配置自动同意关键词。适用群填 default 表示默认规则；某个群配置了专属规则后，该群不再继承 default。",
+    "default": [
+      {
+        "__template_key": "accept_rule",
+        "enabled": true,
+        "group_ids": ["default"],
+        "category": "默认来源",
+        "keywords": []
+      }
+    ],
+    "templates": {
+      "accept_rule": {
+        "name": "同意规则",
+        "hint": "同一群可以添加多条规则，分类用于入群统计。",
+        "display_item": "category",
+        "hide_hint_in_list": true,
+        "items": {
+          "enabled": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "group_ids": {
+            "description": "适用群列表",
+            "type": "list",
+            "hint": "填 default 表示默认规则；也可填写 group_openid 或群名称。",
+            "default": ["default"]
+          },
+          "category": {
+            "description": "来源分类",
+            "type": "string",
+            "hint": "匹配成功后写入入群统计，例如 GitHub、文档、朋友推荐。",
+            "default": "新分类"
+          },
+          "keywords": {
+            "description": "同意关键词",
+            "type": "list",
+            "hint": "验证消息或问答答案命中任一关键词即自动通过，不区分大小写。留空表示不自动通过。",
+            "default": []
+          }
+        }
+      }
+    }
+  },
+  "reject_rules": {
+    "description": "拒绝关键词规则",
+    "type": "template_list",
+    "hint": "验证消息或问答答案命中任一关键词即自动拒绝。拒绝优先级高于同意。",
+    "default": [
+      {
+        "__template_key": "reject_rule",
+        "enabled": true,
+        "group_ids": ["default"],
+        "keywords": []
+      }
+    ],
+    "templates": {
+      "reject_rule": {
+        "name": "拒绝规则",
+        "hide_hint_in_list": true,
+        "items": {
+          "enabled": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "group_ids": {
+            "description": "适用群列表",
+            "type": "list",
+            "hint": "填 default 表示默认规则；也可填写 group_openid 或群名称。",
+            "default": ["default"]
+          },
+          "keywords": {
+            "description": "拒绝关键词",
+            "type": "list",
+            "hint": "验证消息或问答答案命中任一关键词即自动拒绝，不区分大小写。",
+            "default": []
+          }
+        }
+      }
+    }
+  },
+  "message_templates": {
+    "description": "消息模板",
+    "type": "object",
+    "hint": "所有模板都支持占位符：%group_id%、%group_name%、%user_id%、%user_name%、%comment%、%category%、%key%、%apply_source%、%invited_by%、%risk_tips%、%result%、%reason%。",
+    "items": {
+      "welcome_msg": {
+        "description": "自动通过欢迎语",
+        "type": "template_list",
+        "hint": "自动通过入群申请后发送到群里。",
+        "default": [
+          {
+            "__template_key": "message",
+            "group_ids": ["default"],
+            "text": "🎉 欢迎 %user_name% 加入本群！"
+          }
+        ],
+        "templates": {
+          "message": {
+            "name": "欢迎语",
+            "hide_hint_in_list": true,
+            "items": {
+              "group_ids": {
+                "description": "适用群列表",
+                "type": "list",
+                "default": ["default"]
+              },
+              "text": {
+                "description": "消息内容",
+                "type": "text",
+                "default": "🎉 欢迎 %user_name% 加入本群！"
+              }
+            }
+          }
+        }
+      },
+      "increase_msg": {
+        "description": "手动审核欢迎语",
+        "type": "template_list",
+        "hint": "管理员在 QQ 客户端或通过本插件手动通过后，检测到成员加入时发送。",
+        "default": [
+          {
+            "__template_key": "message",
+            "group_ids": ["default"],
+            "text": "🎉 欢迎 %user_name% 加入本群！"
+          }
+        ],
+        "templates": {
+          "message": {
+            "name": "手动审核欢迎语",
+            "hide_hint_in_list": true,
+            "items": {
+              "group_ids": {
+                "description": "适用群列表",
+                "type": "list",
+                "default": ["default"]
+              },
+              "text": {
+                "description": "消息内容",
+                "type": "text",
+                "default": "🎉 欢迎 %user_name% 加入本群！"
+              }
+            }
+          }
+        }
+      },
+      "decrease_msg": {
+        "description": "退群提示",
+        "type": "template_list",
+        "hint": "成员退出群聊时发送。",
+        "default": [
+          {
+            "__template_key": "message",
+            "group_ids": ["default"],
+            "text": "👋 %user_name% 已退出群聊。"
+          }
+        ],
+        "templates": {
+          "message": {
+            "name": "退群提示",
+            "hide_hint_in_list": true,
+            "items": {
+              "group_ids": {
+                "description": "适用群列表",
+                "type": "list",
+                "default": ["default"]
+              },
+              "text": {
+                "description": "消息内容",
+                "type": "text",
+                "default": "👋 %user_name% 已退出群聊。"
+              }
+            }
+          }
+        }
+      },
+      "reject_reason": {
+        "description": "拒绝理由",
+        "type": "template_list",
+        "hint": "作为入群审批接口的 reject_reason 返回给申请人。",
+        "default": [
+          {
+            "__template_key": "message",
+            "group_ids": ["default"],
+            "text": "未通过自动审核：验证消息触发了关键词「%key%」。"
+          }
+        ],
+        "templates": {
+          "message": {
+            "name": "拒绝理由",
+            "hide_hint_in_list": true,
+            "items": {
+              "group_ids": {
+                "description": "适用群列表",
+                "type": "list",
+                "default": ["default"]
+              },
+              "text": {
+                "description": "消息内容",
+                "type": "text",
+                "default": "未通过自动审核：验证消息触发了关键词「%key%」。"
+              }
+            }
+          }
+        }
+      },
+      "notice_msg": {
+        "description": "审核通知模板",
+        "type": "template_list",
+        "hint": "发送到 notice 配置的通知群。",
+        "default": [
+          {
+            "__template_key": "message",
+            "group_ids": ["default"],
+            "text": "【入群申请】%result%\n群：%group_name%（%group_id%）\n用户：%user_name%（%user_id%）\n验证消息：%comment%"
+          }
+        ],
+        "templates": {
+          "message": {
+            "name": "审核通知",
+            "hide_hint_in_list": true,
+            "items": {
+              "group_ids": {
+                "description": "适用群列表",
+                "type": "list",
+                "default": ["default"]
+              },
+              "text": {
+                "description": "消息内容",
+                "type": "text",
+                "default": "【入群申请】%result%\n群：%group_name%（%group_id%）\n用户：%user_name%（%user_id%）\n验证消息：%comment%"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "notice": {
+    "description": "审核通知",
+    "type": "object",
+    "hint": "通知目标填 group_openid，origin 表示申请人所在的群。留空表示不发送通知。",
+    "items": {
+      "accept": {
+        "description": "自动通过通知",
+        "type": "list",
+        "default": []
+      },
+      "reject": {
+        "description": "自动拒绝通知",
+        "type": "list",
+        "default": []
+      },
+      "pending": {
+        "description": "待人工处理通知",
+        "type": "list",
+        "default": []
+      },
+      "increase": {
+        "description": "手动通过通知",
+        "type": "list",
+        "default": []
+      },
+      "decrease": {
+        "description": "成员退出通知",
+        "type": "list",
+        "default": []
+      }
+    }
+  },
+  "admin_openids": {
+    "description": "审核管理员",
+    "type": "list",
+    "hint": "允许使用 /入群审核 通过/拒绝/列表 的成员 openid。可让管理员先在群里发送 /入群审核 我是谁 获取。",
+    "default": []
+  },
+  "record_limit": {
+    "description": "每群记录上限",
+    "type": "int",
+    "hint": "每个群保留的最近成员记录条数，超出后自动清理最旧记录。",
+    "default": 500
+  }
+}
